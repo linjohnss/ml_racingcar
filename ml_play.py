@@ -31,11 +31,11 @@ class MLPlay:
             grid = set()
             speed_ahead = [100, 100, 100]
             speed_back = [-100, -100, -100]
-            if self.car_pos[0] <= 65:  # left bound
+            if self.car_pos[0] <= 35:  # left bound
                 grid.add(1)
                 grid.add(4)
                 grid.add(7)
-            elif self.car_pos[0] >= 565:  # right bound
+            elif self.car_pos[0] >= 595:  # right bound
                 grid.add(3)
                 grid.add(6)
                 grid.add(9)
