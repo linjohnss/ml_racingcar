@@ -18,19 +18,17 @@ class MLPlay:
     def update(self, scene_info):
         """
         9 grid relative position
-            |    |    |    |
-          0 |  1 |  2 |  3 |  10
-            |    |  5 |    |
-         11 |  4 |  c |  6 |  12
-            |    |    |    |
-            |  7 |  8 |  9 |
-            |    |    |    |
+        |    |    |    |
+        |  1 |  2 |  3 |
+        |    |  5 |    |
+        |  4 |  c |  6 |
+        |    |    |    |
+        |  7 |  8 |  9 |
+        |    |    |    |
         """
 
         def check_grid():
-
             grid = set()
-            fargrid = set()
             speed_ahead = [100, 100, 100]
             speed_back = [-100, -100, -100]
             if self.car_pos[0] <= 35:  # left bound
@@ -41,10 +39,6 @@ class MLPlay:
                 grid.add(3)
                 grid.add(6)
                 grid.add(9)
-            elif self.car_pos[0] >= 565:
-                fargrid.add(10)
-            elif self.car_pos[0] <= 65:
-                fargrid.add(0)
 
             for car in scene_info["cars_info"]:
                 if car["id"] != self.player_no:
@@ -56,44 +50,33 @@ class MLPlay:
                             if y < 200:
                                 speed_ahead[1] = car["velocity"]
                                 grid.add(5)
-                        elif y < 0 and y > -200:
+                        elif y < 0 and y > -150:
                             grid.add(8)
-                    if x >= -90 and x <= -40:
-                        if y >= 80 and y <= 155:
+                    if x > -100 and x < -40:
+                        if y > 80 and y < 150:
                             grid.add(3)
                             speed_ahead[2] = car["velocity"]
-                        elif y <= -80 and y >= -155:
+                        elif y < -80 and y > -150:
                             grid.add(9)
                             speed_back[2] = car["velocity"]
                         elif y < 80 and y > -80:
                             grid.add(6)
-                    if x <= 90 and x >= 40:
-                        if y >= 80 and y <= 155:
+                    if x < 100 and x > 40:
+                        if y > 80 and y < 150:
                             grid.add(1)
                             speed_ahead[0] = car["velocity"]
-                        elif y <= -80 and y >= -155:
+                        elif y < -80 and y > -150:
                             grid.add(7)
                             speed_back[0] = car["velocity"]
                         elif y < 80 and y > -80:
                             grid.add(4)
-                    if x < 120 and x >= 90:
-                        if y >= 80 and y < 155:
-                            fargrid.add(0)
-                        elif y < 80 and y > -80:
-                            fargrid.add(11)
-                    if x > -120 and x <= -90:
-                        if y > 80 and y < 155:
-                            fargrid.add(10)
-                        elif y < 80 and y > -80:
-                            fargrid.add(12)
-            #print(grid, self.car_pos)
-            return move(grid=grid, speed_ahead=speed_ahead, fargrid=fargrid, speed_back=speed_back)
+            return move(grid=grid, speed_ahead=speed_ahead, speed_back=speed_back)
 
-        def move(grid, speed_ahead, fargrid, speed_back):
+        def move(grid, speed_ahead, speed_back):
             # if self.player_no == 0:
             #     print(grid)
 
-            if len(grid) == 0:  # and ((0 in grid) or (10 in grid)):
+            if len(grid) == 0:
                 if self.car_pos[0] > self.lanes[self.car_lane]:
                     return ["SPEED", "MOVE_LEFT"]
                 elif self.car_pos[0] < self.lanes[self.car_lane]:
@@ -101,16 +84,6 @@ class MLPlay:
                 else:
                     return ["SPEED"]
             else:
-                if (self.car_pos[0] > 590):
-                    if (self.car_vel < speed_ahead[0]):
-                        return ["SPEED", "MOVE_LEFT"]
-                    else:
-                        return ["BRAKE", "MOVE_LEFT"]
-                elif (self.car_pos[0] < 40):
-                    if (self.car_vel < speed_ahead[2]):
-                        return ["SPEED", "MOVE_RIGHT"]
-                    else:
-                        return ["BRAKE", "MOVE_RIGHT"]
                 if (2 not in grid):  # Check forward
                     if (4 not in grid) and (1 not in grid):
                         return ["SPEED", "MOVE_LEFT"]
@@ -119,40 +92,35 @@ class MLPlay:
                     else:
                         if (4 not in grid) and (6 not in grid):
                             if (1 not in grid) and (3 not in grid):
-                                if (11 not in fargrid and 12 in fargrid):
-                                    return ["SPEED", "MOVE_LEFT"]
-                                elif (12 in fargrid and 12 not in fargrid):
-                                    return ["SPEED", "MOVE_RIGHT"]
-                                else:
-                                    if (0 not in fargrid) and (10 in fargrid):
+                                return ["SPEED"]
+                            elif (1 in grid) and (3 not in grid):
+                                if(self.car_pos>590):
+                                    if(self.car_vel<speed_ahead[0]):
                                         return ["SPEED", "MOVE_LEFT"]
-                                    elif (0 in fargrid) and (10 not in fargrid):
+                                    else:
+                                        return ["BRAKE", "MOVE_LEFT"]
+                                else:
+                                    if (self.car_vel >= speed_back[2]) and (self.car_vel < speed_ahead[2]):
+                                        return ["SPEED", "MOVE_RIGHT"]
+                                    elif (self.car_vel >= speed_back[2]) and (self.car_vel == speed_ahead[2]):
                                         return ["SPEED", "MOVE_RIGHT"]
                                     else:
                                         return ["SPEED"]
-                            elif (1 in grid) and (3 not in grid):
-                                if (self.car_vel >= speed_back[2]) and (self.car_vel < speed_ahead[2]):
-                                    return ["SPEED", "MOVE_RIGHT"]
-                                elif (self.car_vel >= speed_back[2]) and (self.car_vel == speed_ahead[2]):
-                                    return ["SPEED", "MOVE_RIGHT"]
-                                else:
-                                    return ["SPEED"]
                             elif (1 not in grid) and (3 in grid):
-                                if (self.car_vel >= speed_back[0]) and (self.car_vel < speed_ahead[0]):
-                                    return ["SPEED", "MOVE_LEFT"]
-                                elif (self.car_vel >= speed_back[0]) and (self.car_vel == speed_ahead[0]):
-                                    return ["SPEED", "MOVE_LEFT"]
+                                if (self.car_pos < 40):
+                                    if (self.car_vel < speed_ahead[2]):
+                                        return ["SPEED", "MOVE_RIGHT"]
+                                    else:
+                                        return ["BRAKE", "MOVE_RIGHT"]
                                 else:
-                                    return ["SPEED"]
-                            else:  # ?
-                                if (0 not in fargrid) and speed_ahead[0] > speed_ahead[2] and speed_ahead[
-                                    0] > self.car_vel:
-                                    return ["SPEED", "MOVE_LEFT"]
-                                elif (10 not in fargrid) and speed_ahead[0] <= speed_ahead[2] and speed_ahead[
-                                    2] > self.car_vel:
-                                    return ["SPEED", "MOVE_RIGHT"]
-                                else:
-                                    return ["SPEED"]
+                                    if (self.car_vel >= speed_back[0]) and (self.car_vel < speed_ahead[0]):
+                                        return ["SPEED", "MOVE_LEFT"]
+                                    elif (self.car_vel >= speed_back[0]) and (self.car_vel == speed_ahead[0]):
+                                        return ["SPEED", "MOVE_LEFT"]
+                                    else:
+                                        return ["SPEED"]
+                            else:
+                                return ["SPEED"]
                         elif (4 in grid) and (6 not in grid):
                             if (self.car_vel >= speed_back[2]) and (self.car_vel < speed_ahead[2]):
                                 return ["SPEED", "MOVE_RIGHT"]
@@ -205,32 +173,16 @@ class MLPlay:
                                 else:
                                     return ["BRAKE", "MOVE_LEFT"]
                             else:  # 134769 NOT IN GRID 5 in grid
-                                if (0 in fargrid) and (10 not in fargrid):
-                                    if self.car_vel < speed_ahead[1]:
-                                        return ["SPEED", "MOVE_RIGHT"]
-                                    else:
-                                        return ["BRAKE", "MOVE_RIGHT"]
-                                elif (0 not in fargrid) and (10 in fargrid):
-                                    if self.car_vel < speed_ahead[1]:
+                                if(self.car_vel < speed_ahead[1]):
+                                    if (self.car_pos[0] > 315):
                                         return ["SPEED", "MOVE_LEFT"]
                                     else:
-                                        return ["BRAKE", "MOVE_LEFT"]
+                                        return ["SPEED", "MOVE_RIGHT"]
                                 else:
-                                    if (12 not in fargrid):
-                                        if self.car_vel < speed_ahead[1]:
-                                            return ["SPEED", "MOVE_RIGHT"]
-                                        else:
-                                            return ["BRAKE", "MOVE_RIGHT"]
-                                    elif (11 not in fargrid):
-                                        if self.car_vel < speed_ahead[1]:
-                                            return ["SPEED", "MOVE_LEFT"]
-                                        else:
-                                            return ["BRAKE", "MOVE_LEFT"]
+                                    if (self.car_pos[0] > 315):
+                                        return ["BRAKE", "MOVE_LEFT"]
                                     else:
-                                        if self.car_vel < speed_ahead[1]:
-                                            return ["SPEED", "MOVE_RIGHT"]
-                                        else:
-                                            return ["BRAKE", "MOVE_RIGHT"]
+                                        return ["BRAKE", "MOVE_RIGHT"]
                         elif (6 not in grid) and (9 not in grid):  # turn right
                             if (3 in grid):
                                 if (4 not in grid) and (7 not in grid):
@@ -327,79 +279,32 @@ class MLPlay:
                         if (4 not in grid) and (6 not in grid):
                             if (1 not in grid) and (3 not in grid):
                                 if (7 not in grid) and (9 not in grid):
-                                    if (0 not in fargrid) and (10 not in fargrid):
-                                        if (11 not in fargrid) and (12 not in fargrid):
-                                            if (self.car_pos[0] > 315):
-                                                return ["SPEED", "MOVE_LEFT"]
-                                            else:
-                                                return ["SPEED", "MOVE_RIGHT"]
-                                        elif (11 in fargrid) and (12 not in fargrid):
-                                            return ["SPEED", "MOVE_RIGHT"]
-                                        elif (11 not in fargrid) and (12 in fargrid):
+                                    if (self.car_vel < speed_ahead[1]):
+                                        if (self.car_pos[0] > 315):
                                             return ["SPEED", "MOVE_LEFT"]
                                         else:
-                                            if (self.car_pos[0] > 315):
-                                                return ["SPEED", "MOVE_LEFT"]
-                                            else:
-                                                return ["SPEED", "MOVE_RIGHT"]
-                                    elif (0 in fargrid) and (10 not in fargrid):
-                                        return ["SPEED", "MOVE_RIGHT"]
-                                    elif (0 not in fargrid) and (10 in fargrid):
-                                        return ["SPEED", "MOVE_RIGHT"]
+                                            return ["SPEED", "MOVE_RIGHT"]
                                     else:
-                                        if (11 not in fargrid) and (12 not in fargrid):
-                                            if (self.car_pos[0] > 315):
-                                                return ["SPEED", "MOVE_LEFT"]
-                                            else:
-                                                return ["SPEED", "MOVE_RIGHT"]
-                                        elif (11 in fargrid) and (12 not in fargrid):
-                                            return ["SPEED", "MOVE_RIGHT"]
-                                        elif (11 not in fargrid) and (12 in fargrid):
-                                            return ["SPEED", "MOVE_LEFT"]
+                                        if (self.car_pos[0] > 315):
+                                            return ["BRAKE", "MOVE_LEFT"]
                                         else:
-                                            if (self.car_pos[0] > 315):
-                                                return ["SPEED", "MOVE_LEFT"]
-                                            else:
-                                                return ["SPEED", "MOVE_RIGHT"]
+                                            return ["BRAKE", "MOVE_RIGHT"]
                                 elif (7 in grid) and (9 not in grid):
                                     return ["SPEED", "MOVE_RIGHT"]
                                 elif (7 not in grid) and (9 in grid):
                                     return ["SPEED", "MOVE_LEFT"]
-                                else:  # acc
-                                    if (0 not in fargrid) and (10 not in fargrid):
-                                        if (11 not in fargrid) and (12 not in fargrid):
-                                            if (self.car_pos[0] > 315):
-                                                return ["SPEED", "MOVE_LEFT"]
-                                            else:
-                                                return ["SPEED", "MOVE_RIGHT"]
-                                        elif (11 in fargrid) and (12 not in fargrid):
-                                            return ["SPEED", "MOVE_RIGHT"]
-                                        elif (11 not in fargrid) and (12 in fargrid):
+                                else:
+                                    if (self.car_vel < speed_ahead[1]):
+                                        if (self.car_pos[0] > 315):
                                             return ["SPEED", "MOVE_LEFT"]
                                         else:
-                                            if (self.car_pos[0] > 315):
-                                                return ["SPEED", "MOVE_LEFT"]
-                                            else:
-                                                return ["SPEED", "MOVE_RIGHT"]
-                                    elif (0 in fargrid) and (10 not in fargrid):
-                                        return ["SPEED", "MOVE_RIGHT"]
-                                    elif (0 not in fargrid) and (10 in fargrid):
-                                        return ["SPEED", "MOVE_RIGHT"]
+                                            return ["SPEED", "MOVE_RIGHT"]
                                     else:
-                                        if (11 not in fargrid) and (12 not in fargrid):
-                                            if (self.car_pos[0] > 315):
-                                                return ["SPEED", "MOVE_LEFT"]
-                                            else:
-                                                return ["SPEED", "MOVE_RIGHT"]
-                                        elif (11 in fargrid) and (12 not in fargrid):
-                                            return ["SPEED", "MOVE_RIGHT"]
-                                        elif (11 not in fargrid) and (12 in fargrid):
-                                            return ["SPEED", "MOVE_LEFT"]
+                                        if (self.car_pos[0] > 315):
+                                            return ["BRAKE", "MOVE_LEFT"]
                                         else:
-                                            if (self.car_pos[0] > 315):
-                                                return ["SPEED", "MOVE_LEFT"]
-                                            else:
-                                                return ["SPEED", "MOVE_RIGHT"]
+                                            return ["BRAKE", "MOVE_RIGHT"]
+
                             elif (1 in grid) and (3 not in grid):
                                 return ["SPEED", "MOVE_RIGHT"]
                             elif (1 not in grid) and (3 in grid):
