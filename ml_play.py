@@ -84,16 +84,6 @@ class MLPlay:
                 else:
                     return ["SPEED"]
             else:
-                if (self.car_pos[0] > 590):
-                    if (self.car_vel < speed_ahead[0]):
-                        return ["SPEED", "MOVE_LEFT"]
-                    else:
-                        return ["BRAKE", "MOVE_LEFT"]
-                elif (self.car_pos[0] < 40):
-                    if (self.car_vel < speed_ahead[2]):
-                        return ["SPEED", "MOVE_RIGHT"]
-                    else:
-                        return ["BRAKE", "MOVE_RIGHT"]
                 if (2 not in grid):  # Check forward
                     if (4 not in grid) and (1 not in grid):
                         return ["SPEED", "MOVE_LEFT"]
@@ -104,15 +94,31 @@ class MLPlay:
                             if (1 not in grid) and (3 not in grid):
                                 return ["SPEED"]
                             elif (1 in grid) and (3 not in grid):
-                                if (self.car_vel >= speed_back[2]):
-                                    return ["SPEED", "MOVE_RIGHT"]
+                                if(self.car_pos>590):
+                                    if(self.car_vel<speed_ahead[0]):
+                                        return ["SPEED", "MOVE_LEFT"]
+                                    else:
+                                        return ["BRAKE", "MOVE_LEFT"]
                                 else:
-                                    return ["SPEED"]
+                                    if (self.car_vel >= speed_back[2]) and (self.car_vel < speed_ahead[2]):
+                                        return ["SPEED", "MOVE_RIGHT"]
+                                    elif (self.car_vel >= speed_back[2]) and (self.car_vel == speed_ahead[2]):
+                                        return ["SPEED", "MOVE_RIGHT"]
+                                    else:
+                                        return ["SPEED"]
                             elif (1 not in grid) and (3 in grid):
-                                if (self.car_vel >= speed_back[0]):
-                                   return ["SPEED", "MOVE_LEFT"]
+                                if (self.car_pos < 40):
+                                    if (self.car_vel < speed_ahead[2]):
+                                        return ["SPEED", "MOVE_RIGHT"]
+                                    else:
+                                        return ["BRAKE", "MOVE_RIGHT"]
                                 else:
-                                    return ["SPEED"]
+                                    if (self.car_vel >= speed_back[0]) and (self.car_vel < speed_ahead[0]):
+                                        return ["SPEED", "MOVE_LEFT"]
+                                    elif (self.car_vel >= speed_back[0]) and (self.car_vel == speed_ahead[0]):
+                                        return ["SPEED", "MOVE_LEFT"]
+                                    else:
+                                        return ["SPEED"]
                             else:
                                 return ["SPEED"]
                         elif (4 in grid) and (6 not in grid):
@@ -134,16 +140,7 @@ class MLPlay:
                             else:
                                 return ["SPEED"]
                         else:
-                            if (self.car_vel < speed_ahead[1]):
-                                if (self.car_pos[0] > 315):
-                                    return ["SPEED", "MOVE_LEFT"]
-                                else:
-                                    return ["SPEED", "MOVE_RIGHT"]
-                            else:
-                                if (self.car_pos[0] > 315):
-                                    return ["BRAKE", "MOVE_LEFT"]
-                                else:
-                                    return ["BRAKE", "MOVE_RIGHT"]
+                            return ["SPEED"]
                 else:
                     if (5 in grid):  # NEED to BRAKE
                         if ((4 not in grid) and (7 not in grid)) and (
