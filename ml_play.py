@@ -24,7 +24,7 @@ class MLPlay:
         self.car_pos = (0,0)
         self.feature = [0,0,0,0,0,0,0,0,0]
 
-        with open(path.join(path.dirname(__file__), 'save', 'decisiontreemodel.pickle'), 'rb') as file: self.model = pickle.load(file)
+        with open(path.join(path.dirname(__file__), 'save', 'decisiontreemodel_1.pickle'), 'rb') as file: self.model = pickle.load(file)
         pass
 
 
