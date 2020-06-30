@@ -23,14 +23,19 @@ class MLPlay:
         self.car_vel = 0 #initialization
         self.car_pos = (0,0)
         self.feature = [0,0,0,0,0,0,0,0,0]
-        
+
         with open(path.join(path.dirname(__file__), 'save', 'decisiontreemodel.pickle'), 'rb') as file: self.model = pickle.load(file)
         pass
-    
+
+
+
+
     def update(self, scene_info):
         """
         Generate the command according to the received scene information
         """
+        speed_f = [100, 100, 100]
+        speed_b = [100, 100, 100]
         def check_grid():
             self.car_pos = scene_info[self.player]
             if scene_info["status"] != "ALIVE":
@@ -40,43 +45,52 @@ class MLPlay:
                 self.car_pos = (0,0)
 
             grid = set()
+            speed_ahead = []
+
             for i in range(len(scene_info["cars_info"])): # for all cars information in scene of one frame
                 car = scene_info["cars_info"][i]
                 if car["id"]==self.player_no: #player's car information
-                    self.car_vel = car["velocity"] 
-                else: # computer's cars information
-                    if self.car_pos[0] <= 65: # left bound 
+                    self.car_vel = car["velocity"]
+                    if self.car_pos[0] <= 45: # left bound
                         grid.add(1)
                         grid.add(4)
                         grid.add(7)
-                    elif self.car_pos[0] >= 565: # right bound
+                    elif self.car_pos[0] >= 585: # right bound
                         grid.add(3)
                         grid.add(6)
                         grid.add(9)
-
+                else: # computer's cars information
                     x = self.car_pos[0] - car["pos"][0] # x relative position
                     y = self.car_pos[1] - car["pos"][1] # y relative position
 
-                    if x <= 40 and x >= -40 :      
-                        if y > 0 and y < 300:
+
+
+                    if x <= 40 and x >= -40 :
+                        if y >= 0 and y <= 300:
                             grid.add(2)
-                            if y < 200:
-                                grid.add(5) 
-                        elif y < 0 and y > -200:
+                            if y <= 200:
+                                grid.add(5)
+                                speed_f[1]=car["velocity"]
+                        elif y <= 0 and y >= -200:
                             grid.add(8)
-                    if x > -100 and x < -40 :
-                        if y > 80 and y < 250:
+                            speed_b[1]=car["velocity"]
+                    elif x >= -100 and x <= -40 :
+                        if y >= 80 and y <= 250:
                             grid.add(3)
-                        elif y < -80 and y > -200:
+                            speed_f[2]=car["velocity"]
+                        elif y <= -80 and y >= -200:
+                            speed_b[2]=car["velocity"]
                             grid.add(9)
-                        elif y < 80 and y > -80:
+                        elif y <= 80 and y >= -80:
                             grid.add(6)
-                    if x < 100 and x > 40:
-                        if y > 80 and y < 250:
+                    elif x <= 100 and x >= 40:
+                        if y >= 80 and y <= 250:
                             grid.add(1)
-                        elif y < -80 and y > -200:
+                            speed_f[0]=car["velocity"]
+                        elif y <= -80 and y >= -200:
+                            speed_b[0]=car["velocity"]
                             grid.add(7)
-                        elif y < 80 and y > -80:
+                        elif y <= 80 and y >= -80:
                             grid.add(4)
 #            print(grid)
             return move(grid = grid)
@@ -85,10 +99,11 @@ class MLPlay:
             feature = []
             coin_x=1000
             coin_y=1000
+
             for coin in scene_info["coins"]:
                 temp_x = self.car_pos[0] - coin[0]
                 temp_y = self.car_pos[1] - coin[1]
-                if temp_y < 0:
+                if temp_y > 0:
                     if temp_x < coin_x:
                         coin_x = temp_x
                         coin_y = temp_y
@@ -100,7 +115,17 @@ class MLPlay:
             grid_data = [0,0,0,0,0,0,0,0,0]
             for i in grid_tolist:
                 grid_data[i-1] = 1 # change grid set into feature's data shape
+            grid_data.append(coin_x)
+            grid_data.append(coin_y)
+            #grid_data.append(speed_f[0])
+            grid_data.append(self.car_vel- speed_f[1])
+            '''grid_data.append(speed_f[2])
+            grid_data.append(speed_b[0])
+            grid_data.append(speed_b[1])
+            grid_data.append(speed_b[2])'''
+
             grid_data = np.array(grid_data).reshape(1,-1)
+
             self.feature = grid_data
             self.feature = np.array(self.feature)
             self.feature = self.feature.reshape((1,-1))
@@ -122,7 +147,7 @@ class MLPlay:
                 return ["LEFT"]
             if y == 7:
                 return ["RIGHT"]
-            if y==8:
+            if y == 8:
                 return ["NONE"]
         
         return check_grid()
