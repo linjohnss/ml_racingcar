@@ -78,7 +78,7 @@ class MLPlay:
 
 
 
-                    if x <= 40 and x >= -40 :
+                    if x <= 30 and x >= -30 :
                         if y >= 0 and y <= 300:
                             grid.add(2)
                             if y <= 100:
@@ -86,14 +86,14 @@ class MLPlay:
                                 speed_f=car["velocity"]
                         elif y <= 0 and y >= -200:
                             grid.add(8)
-                    elif x >= -100 and x <= -40 :
+                    elif x >= -100 and x <= -30 :
                         if y >= 80 and y <= 250:
                             grid.add(3)
                         elif y <= -80 and y >= -200:
                             grid.add(9)
                         elif y <= 80 and y >= -80:
                             grid.add(6)
-                    elif x <= 100 and x >= 40:
+                    elif x <= 100 and x >= 30:
                         if y >= 80 and y <= 250:
                             grid.add(1)
                         elif y <= -80 and y >= -200:
