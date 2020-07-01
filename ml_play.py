@@ -66,6 +66,11 @@ class MLPlay:
                     elif self.car_pos[0] >=515:
                         grid.add(11)
                         grid.add(13)
+                    elif self.car_pos[0] <=185:
+                        grid.add(14)
+                    elif self.car_pos[0] >=445:
+                        grid.add(15)
+
 
                 else: # computer's cars information
                     x = self.car_pos[0] - car["pos"][0] # x relative position
@@ -76,7 +81,7 @@ class MLPlay:
                     if x <= 40 and x >= -40 :
                         if y >= 0 and y <= 300:
                             grid.add(2)
-                            if y <= 200:
+                            if y <= 150:
                                 grid.add(5)
                                 speed_f[1]=car["velocity"]
                         elif y <= 0 and y >= -200:
@@ -110,6 +115,12 @@ class MLPlay:
                             grid.add(11)
                         elif y <= 80 and y >= -80:
                             grid.add(13)
+                    elif x <= 220 and x>=160:
+                        if(y >=-80 and y<=250):
+                            grid.add(14)
+                    elif x >= -220 and x<= -160:
+                        if(y >=-80 and y<=250):
+                            grid.add(15)
 #            print(grid)
 
             coin_x = 1000
@@ -125,8 +136,8 @@ class MLPlay:
             if coin_x == 1000:
                 coin_x = 315
                 coin_y = 0
-            if (5 in grid):
-                coin_x=315
+            #if (5 in grid):
+            #    coin_x=315
 
             return move(grid=grid,coin_x = self.car_pos[0]-coin_x,speed=self.car_vel-speed_f[1])
         
@@ -135,7 +146,7 @@ class MLPlay:
 
 
             grid_tolist = list(grid)
-            grid_data = [0,0,0,0,0,0,0,0,0,0,0,0,0]
+            grid_data = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             for i in grid_tolist:
                 grid_data[i-1] = 1 # change grid set into feature's data shape
             grid_data.append(coin_x)
