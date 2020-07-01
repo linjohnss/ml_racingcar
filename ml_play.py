@@ -36,6 +36,7 @@ class MLPlay:
         """
         speed_f = [100, 100, 100]
         speed_b = [100, 100, 100]
+
         def check_grid():
             self.car_pos = scene_info[self.player]
             if scene_info["status"] != "ALIVE":
@@ -93,12 +94,9 @@ class MLPlay:
                         elif y <= 80 and y >= -80:
                             grid.add(4)
 #            print(grid)
-            return move(grid = grid)
-        
-        def move(grid):
-            feature = []
-            coin_x=1000
-            coin_y=1000
+
+            coin_x = 1000
+            coin_y = 1000
 
             for coin in scene_info["coins"]:
                 temp_x = self.car_pos[0] - coin[0]
@@ -107,9 +105,15 @@ class MLPlay:
                     if temp_x < coin_x:
                         coin_x = temp_x
                         coin_y = temp_y
-            if coin_x==1000:
-                coin_x=0
-                coin_y=0
+            if coin_x == 1000:
+                coin_x = 0
+                coin_y = 0
+
+            return move(grid=grid,coin_x = coin_x,coin_y=coin_y,speed=self.car_vel-speed_f[1])
+        
+        def move(grid,coin_x ,coin_y,speed):
+            feature = []
+
 
             grid_tolist = list(grid)
             grid_data = [0,0,0,0,0,0,0,0,0]
@@ -118,7 +122,7 @@ class MLPlay:
             grid_data.append(coin_x)
             grid_data.append(coin_y)
             #grid_data.append(speed_f[0])
-            grid_data.append(self.car_vel- speed_f[1])
+            grid_data.append(speed)
             '''grid_data.append(speed_f[2])
             grid_data.append(speed_b[0])
             grid_data.append(speed_b[1])
