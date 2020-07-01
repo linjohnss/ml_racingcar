@@ -78,7 +78,7 @@ class MLPlay:
 
 
 
-                    if x <= 30 and x >= -30 :
+                    if x <= 40 and x >= -40 :
                         if y >= 0 and y <= 300:
                             grid.add(2)
                             if y <= 100:
@@ -86,14 +86,14 @@ class MLPlay:
                                 speed_f=car["velocity"]
                         elif y <= 0 and y >= -200:
                             grid.add(8)
-                    elif x >= -100 and x <= -30 :
+                    elif x >= -100 and x <= -40 :
                         if y >= 80 and y <= 250:
                             grid.add(3)
                         elif y <= -80 and y >= -200:
                             grid.add(9)
                         elif y <= 80 and y >= -80:
                             grid.add(6)
-                    elif x <= 100 and x >= 30:
+                    elif x <= 100 and x >= 40:
                         if y >= 80 and y <= 250:
                             grid.add(1)
                         elif y <= -80 and y >= -200:
@@ -125,14 +125,14 @@ class MLPlay:
                 temp_x = coin[0]
                 temp_y = coin[1]
                 if temp_y > 0:
-                    if temp_x < coin_x:
+                    if abs(temp_x) < abs(coin_x):
                         coin_x = temp_x
                         coin_y = temp_y
             if coin_x == 1000:
                 coin_x = 315
                 coin_y = 0
-            #if (5 in grid):
-            #    coin_x=315
+            if (self.car_pos[1]>600):
+                coin_x=315
 
             return move(grid=grid,coin_x = self.car_pos[0]-coin_x,speed=self.car_vel-speed_f)
         
