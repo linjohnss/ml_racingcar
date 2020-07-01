@@ -34,8 +34,7 @@ class MLPlay:
         """
         Generate the command according to the received scene information
         """
-        speed_f = [100, 100, 100]
-        speed_b = [100, 100, 100]
+
 
         def check_grid():
             self.car_pos = scene_info[self.player]
@@ -45,6 +44,7 @@ class MLPlay:
             if len(self.car_pos) == 0:
                 self.car_pos = (0,0)
 
+            speed_f = 0
             grid = set()
             speed_ahead = []
 
@@ -81,27 +81,22 @@ class MLPlay:
                     if x <= 40 and x >= -40 :
                         if y >= 0 and y <= 300:
                             grid.add(2)
-                            if y <= 150:
+                            if y <= 100:
                                 grid.add(5)
-                                speed_f[1]=car["velocity"]
+                                speed_f=car["velocity"]
                         elif y <= 0 and y >= -200:
                             grid.add(8)
-                            speed_b[1]=car["velocity"]
                     elif x >= -100 and x <= -40 :
                         if y >= 80 and y <= 250:
                             grid.add(3)
-                            speed_f[2]=car["velocity"]
                         elif y <= -80 and y >= -200:
-                            speed_b[2]=car["velocity"]
                             grid.add(9)
                         elif y <= 80 and y >= -80:
                             grid.add(6)
                     elif x <= 100 and x >= 40:
                         if y >= 80 and y <= 250:
                             grid.add(1)
-                            speed_f[0]=car["velocity"]
                         elif y <= -80 and y >= -200:
-                            speed_b[0]=car["velocity"]
                             grid.add(7)
                         elif y <= 80 and y >= -80:
                             grid.add(4)
@@ -139,7 +134,7 @@ class MLPlay:
             #if (5 in grid):
             #    coin_x=315
 
-            return move(grid=grid,coin_x = self.car_pos[0]-coin_x,speed=self.car_vel-speed_f[1])
+            return move(grid=grid,coin_x = self.car_pos[0]-coin_x,speed=self.car_vel-speed_f)
         
         def move(grid,coin_x ,speed):
             feature = []
